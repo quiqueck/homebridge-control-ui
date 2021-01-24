@@ -11,6 +11,7 @@ import ServiceList from '@/components/ServiceList.vue'
 import Notifications from '@/components/Notifications.vue'
 
 @Component({
+    // eslint-disable-next-line no-undef
     components: {
         ServiceList,
         Notifications

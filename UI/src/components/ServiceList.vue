@@ -14,6 +14,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import { getModule } from 'vuex-module-decorators'
 import ServiceWidget from './ServiceWidget.vue'
 
+// eslint-disable-next-line no-undef
 @Component({ components: { ServiceWidget } })
 export default class ServiceList extends Vue {
     instance: InstanceModule | null = null
