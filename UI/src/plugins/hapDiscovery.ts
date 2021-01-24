@@ -5,6 +5,8 @@ import InstanceModule from '@/store/InstanceModule'
 import axios, { AxiosResponse } from 'axios'
 import { IHapService } from '@/interfaces/IHapService'
 import { getModule } from 'vuex-module-decorators'
+import i18n from './i18n'
+import { ErrorMessage } from '@/interfaces/IErrorMessage'
 
 const instanceModule = getModule(InstanceModule)
 
@@ -28,6 +30,11 @@ export class HapDiscovery {
     u(sub: string) {
         return `${this.baseURL}${sub}`
     }
+
+    private async get(sub: string) {
+        return axios.get(this.u(sub), this._reqCfg)
+    }
+
     private config: UserHapDiscoveryPreset
     //private _token: string
     private _reqCfg: any
@@ -63,6 +70,7 @@ export class HapDiscovery {
                 })
                 .catch(err => {
                     console.error(err)
+                    instanceModule.setConnected(false)
                     reject(err)
                 })
         })
@@ -77,14 +85,16 @@ export class HapDiscovery {
                     Authorization: `Bearer ${response.data.access_token}`
                 }
             }
+            instanceModule.setConnected(true)
         } else {
+            instanceModule.setConnected(false)
             console.error('Authentication failed')
         }
     }
 
     async checkAuth() {
         try {
-            const r = await axios.get(this.u('/api/auth/check'), this._reqCfg)
+            const r = await this.get('/api/auth/check')
             if (r.status === 401) {
                 return false
             } else if (r.status === 200) {
@@ -108,9 +118,11 @@ export class HapDiscovery {
             const self = this
             const attempt = function() {
                 if (count <= 0) {
+                    instanceModule.setConnected(false)
                     reject()
                 } else {
                     if (self.checkAuth()) {
+                        instanceModule.setConnected(true)
                         resolve()
                     } else {
                         console.error('[AuthFail] Retry in ', self.config.retryTimer / 1000, 's')
@@ -127,24 +139,38 @@ export class HapDiscovery {
         })
     }
     private services: IHapService[] = []
-    loadServices(): Promise<IHapService[]> {
-        return new Promise<IHapService[]>((resolve, reject) => {
-            this.authOrRetry().then(async () => {
-                try {
-                    const r = await axios.get(this.u('/api/accessories'), this._reqCfg)
-                    if (r.status === 200) {
-                        this.services = r.data
-                        resolve(this.services)
-                    } else {
-                        console.error('[loadServices] Unexpected answer', r.status, r.statusText, r.data)
-                        reject(``)
-                    }
-                } catch (err) {
-                    console.error('[loadServices]', err.response.data)
-                    reject()
-                }
-            })
-        })
+    async loadServices(): Promise<IHapService[]> {
+        await this.authOrRetry()
+        try {
+            const r = await axios.get(this.u('/api/accessories'), this._reqCfg)
+            if (r.status === 200) {
+                this.services = r.data
+                return this.services
+            } else {
+                throw {
+                    message: i18n.tc('Errors.hapDiscovery.loadService.unexpectedStatus'),
+                    details: `${r.status} ${r.statusText}`,
+                    sender: 'hapDiscovery.loadServices',
+                    data: [r.status, r.statusText, r.data],
+                    rethrow: true
+                } as ErrorMessage
+            }
+        } catch (err) {
+            instanceModule.setConnected(false)
+            if (err.rethrow) {
+                err.rethrow = false
+                console.error('[loadServices]', err)
+                throw err
+            } else {
+                console.error('[loadServices]', err.response.data)
+                throw {
+                    message: i18n.tc('Errors.hapDiscovery.loadService.failed'),
+                    details: `${err.response.data.statusCode} ${err.response.data.message}`,
+                    sender: 'hapDiscovery.loadServices',
+                    data: err.response.data
+                } as ErrorMessage
+            }
+        }
     }
 }
 

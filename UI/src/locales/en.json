@@ -1,6 +1,10 @@
 {
-    "Test": {
-        "What": "TestEN"
-    },
-    "hello": "hello i18n !!"
+    "Errors": {
+        "hapDiscovery": {
+            "loadService": {
+                "unexpectedStatus": "[Communication Error] Unexpected status in reply to service request.",
+                "failed": "[Communication Error] Connecting to the HomBridge-Service failed"
+            }
+        }
+    }
 }

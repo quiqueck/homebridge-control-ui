@@ -1,6 +1,10 @@
 {
-    "Test": {
-        "What": "TestDE"
-    },
-    "hello": "hello i18n !!"
+    "Errors": {
+        "hapDiscovery": {
+            "loadService": {
+                "unexpectedStatus": "[Kommunikationsfehler] Der Antwortstatus bei laden der Dienste war unerwartet.",
+                "failed": "[Kommunikationsfehler] Verbindungsfehler bei laden der Dienste."
+            }
+        }
+    }
 }

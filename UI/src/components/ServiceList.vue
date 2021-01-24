@@ -1,0 +1,40 @@
+<template>
+    <v-container>
+        <v-row>
+            <ServiceWidget v-for="service in serviceList" :key="service.uniqueID" :service="service"></ServiceWidget>
+        </v-row>
+    </v-container>
+</template>
+
+<script lang="ts">
+import { IHapService } from '@/interfaces/IHapService'
+import InstanceModule from '@/store/InstanceModule'
+import Vue from 'vue'
+import { Component, Prop } from 'vue-property-decorator'
+import { getModule } from 'vuex-module-decorators'
+import ServiceWidget from './ServiceWidget.vue'
+
+@Component({ components: { ServiceWidget } })
+export default class ServiceList extends Vue {
+    instance: InstanceModule | null = null
+    constructor() {
+        super()
+    }
+
+    @Prop({ default: null }) services: IHapService[] | null = null
+    get serviceList(): IHapService[] {
+        if (this.services === null) {
+            return this.instance ? this.instance.services : []
+        } else {
+            return this.services
+        }
+    }
+
+    mounted() {}
+    created() {
+        this.instance = getModule(InstanceModule)
+    }
+}
+</script>
+
+<style></style>

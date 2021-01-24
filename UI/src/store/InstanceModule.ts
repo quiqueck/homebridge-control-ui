@@ -5,6 +5,7 @@ import store from '@/store/'
 @Module({ store, name: 'InstanceModule', dynamic: true })
 export default class InstanceModule extends VuexModule {
     services: IHapService[] = [] // initialize empty for now
+    connected: boolean = false
 
     get totalServices(): number {
         return this.services.length
@@ -13,6 +14,11 @@ export default class InstanceModule extends VuexModule {
     @Mutation
     updateServices(services: IHapService[]) {
         this.services = services
+    }
+
+    @Mutation
+    setConnected(ok: boolean) {
+        this.connected = ok
     }
 
     // @Action({ commit: 'updateServices' })
