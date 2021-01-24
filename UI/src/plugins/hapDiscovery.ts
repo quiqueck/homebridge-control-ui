@@ -1,14 +1,15 @@
 import { PluginFunction } from 'vue'
 import _Vue from 'vue'
-import store from '@/store'
 import InstanceModule from '@/store/InstanceModule'
 import axios, { AxiosResponse } from 'axios'
 import { IHapService } from '@/interfaces/IHapService'
 import { getModule } from 'vuex-module-decorators'
 import i18n from './i18n'
 import { ErrorMessage } from '@/interfaces/IErrorMessage'
+import StateModule from '@/store/StateModule'
 
 const instanceModule = getModule(InstanceModule)
+const stateModule = getModule(StateModule)
 
 export interface UserHapDiscoveryPreset {
     host: string
@@ -48,9 +49,14 @@ export class HapDiscovery {
         client = new HapDiscovery(options)
         client.authenticate().then(() => {
             console.log('[HapClient] authenticated')
-            client?.loadServices().then((services: IHapService[]) => {
-                instanceModule.updateServices(services.sort((a, b) => a.serviceName.localeCompare(b.serviceName)))
-            })
+            client
+                ?.loadServices()
+                .then((services: IHapService[]) => {
+                    instanceModule.updateServices(services.sort((a, b) => a.serviceName.localeCompare(b.serviceName)))
+                })
+                .catch((err: ErrorMessage) => {
+                    stateModule.addError(err)
+                })
         })
     }
     static version: string = '1.0.0'
@@ -70,7 +76,7 @@ export class HapDiscovery {
                 })
                 .catch(err => {
                     console.error(err)
-                    instanceModule.setConnected(false)
+                    stateModule.setConnected(false)
                     reject(err)
                 })
         })
@@ -85,9 +91,9 @@ export class HapDiscovery {
                     Authorization: `Bearer ${response.data.access_token}`
                 }
             }
-            instanceModule.setConnected(true)
+            stateModule.setConnected(true)
         } else {
-            instanceModule.setConnected(false)
+            stateModule.setConnected(false)
             console.error('Authentication failed')
         }
     }
@@ -118,11 +124,11 @@ export class HapDiscovery {
             const self = this
             const attempt = function() {
                 if (count <= 0) {
-                    instanceModule.setConnected(false)
+                    stateModule.setConnected(false)
                     reject()
                 } else {
                     if (self.checkAuth()) {
-                        instanceModule.setConnected(true)
+                        stateModule.setConnected(true)
                         resolve()
                     } else {
                         console.error('[AuthFail] Retry in ', self.config.retryTimer / 1000, 's')
@@ -156,7 +162,7 @@ export class HapDiscovery {
                 } as ErrorMessage
             }
         } catch (err) {
-            instanceModule.setConnected(false)
+            stateModule.setConnected(false)
             if (err.rethrow) {
                 err.rethrow = false
                 console.error('[loadServices]', err)
