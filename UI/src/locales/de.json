@@ -2,8 +2,8 @@
     "Errors": {
         "hapDiscovery": {
             "loadService": {
-                "unexpectedStatus": "[Kommunikationsfehler] Der Antwortstatus bei laden der Dienste war unerwartet.",
-                "failed": "[Kommunikationsfehler] Verbindungsfehler bei laden der Dienste."
+                "unexpectedStatus": "[Kommunikationsfehler] Der Antwortstatus beim Laden der Dienste war unerwartet.",
+                "failed": "[Kommunikationsfehler] Verbindungsfehler beim Laden der Dienste."
             }
         }
     }
