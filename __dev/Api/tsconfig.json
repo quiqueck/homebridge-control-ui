@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "outDir": "../../api/",
+    "rootDir": "./src/",
     "target": "esnext",
     "module": "esnext",
     "strict": true,
@@ -11,16 +13,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "baseUrl": ".",
-    "types": [
-      "webpack",
-      "webpack-env"
-    ],
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
+    "baseUrl": ".",    
     "lib": [
       "esnext",
       "dom",
@@ -31,7 +24,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
