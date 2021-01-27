@@ -1,0 +1,15 @@
+{
+  "name": "homebridge-controller-api-dev",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "main": "serve.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "F. Bauer",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

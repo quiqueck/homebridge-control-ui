@@ -1,8 +1,18 @@
 {
 	"folders": [
-		{
-			"path": "UI"
-		}
-	],
-	"settings": {}
+        {
+            "path": "__dev/UI"
+        },
+        {
+            "path": "__dev/Api"
+        },
+        {
+            "path": "."
+        }
+    ],
+	"settings": {
+        "files.exclude": {
+            "__dev": true,
+        }
+    }
 }
