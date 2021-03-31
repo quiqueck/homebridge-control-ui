@@ -1,22 +1,21 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/esm/",
+        "outDir": "./dist/",
         "rootDir": "./src/",
         "target": "esnext",
-        "module": "esnext",
+        "module": "CommonJS",
         "strict": true,
         "jsx": "preserve",
         "importHelpers": true,
         "moduleResolution": "node",
         "experimentalDecorators": true,
         "skipLibCheck": true,
-        "declaration": true,
+        "declaration": false,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "sourceMap": true,
         "suppressImplicitAnyIndexErrors": true,
         "baseUrl": ".",
-        "incremental": true,
         "lib": [
             "esnext",
             "dom",
@@ -29,7 +28,7 @@
         "src/**/*.tsx",
         "tests/**/*.ts",
         "tests/**/*.tsx"
-, "serve.ts"   ],
+, "serve.ts"    ],
     "exclude": [
         "node_modules"
     ]
