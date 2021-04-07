@@ -6,6 +6,7 @@ import axios from 'axios'
 import { HapMonitor } from '@oznu/hap-client/dist/monitor'
 
 const INSTANCE_WATCHDOG_INTERVAL = 30 * 1000
+const CLIENT_WATCHDOG_INTERVAL = 90 * 1000
 export interface IHapListenerConfig {
     pin: string
     logger: any
@@ -32,6 +33,7 @@ export class HapListener {
     private hapClient: HapClient | undefined
     private instance: IHapInstance | undefined
     private instanceWatchDog: NodeJS.Timeout | undefined
+    private clientWatchDog: NodeJS.Timeout | undefined
     private monitor: HapMonitor | undefined
 
     private l(who: String, text: String) {
@@ -50,6 +52,7 @@ export class HapListener {
     }
 
     private async didDiscoverInstance(instance: IHapInstance) {
+        this.stopClientWatchDog()
         this.stopInstanceWatchDog()
 
         this.l('Listener', `Bound to Instance ${instance.ipAddress}:${instance.port}`)
@@ -103,7 +106,26 @@ export class HapListener {
         }
     }
 
-    stop(): void {
+    private async onClientWatchDog() {
+        if (this.instance === undefined && this.hapClient) {
+            this.dl('WatchDog', `Retrigger Discovery`)
+            this.hapClient.refreshInstances()
+        }
+    }
+
+    private stopClientWatchDog() {
+        if (this.clientWatchDog) {
+            clearInterval(this.clientWatchDog)
+            this.clientWatchDog = undefined
+        }
+    }
+
+    public stop() {
+        this.stopClientWatchDog()
+        this._stop()
+    }
+
+    private _stop(): void {
         this.stopInstanceWatchDog()
         if (this.monitor) {
             this.monitor.finish()
@@ -119,9 +141,17 @@ export class HapListener {
     }
 
     start(): void {
-        this.stop()
+        this._stop()
 
-        this.hapClient = new HapClient(this.config)
-        this.hapClient.on('instance-discovered', this.didDiscoverInstance.bind(this))
+        if (this.clientWatchDog === undefined) {
+            this.clientWatchDog = setInterval(this.onClientWatchDog.bind(this), CLIENT_WATCHDOG_INTERVAL)
+        }
+
+        if (this.hapClient === undefined) {
+            this.hapClient = new HapClient(this.config)
+            this.hapClient.on('instance-discovered', this.didDiscoverInstance.bind(this))
+        } else {
+            this.hapClient.refreshInstances()
+        }
     }
 }
