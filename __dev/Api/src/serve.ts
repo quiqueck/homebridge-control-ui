@@ -21,3 +21,13 @@ const listener = new HapListener({
     config: { debug: true },
 })
 listener.start()
+
+const io = require('socket.io')(1234, {
+    cors: {
+        origin: 'http://localhost:8080',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['my-custom-header'],
+        credentials: true,
+    },
+})
+io.emit('tweet', {})

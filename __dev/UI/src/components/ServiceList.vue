@@ -1,5 +1,7 @@
 <template>
     <v-container>
+        <span>{{ $socket.connected ? 'Connected' : 'Disconnected' }}</span>
+
         <v-row>
             <ServiceWidget v-for="service in serviceList" :key="service.uniqueID" :service="service"></ServiceWidget>
         </v-row>
