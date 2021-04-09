@@ -9,8 +9,10 @@
 </template>
 
 <script lang="ts">
+import store from '@/store'
 import { IHapService } from '@/interfaces/IHapService'
 import InstanceModule from '@/store/InstanceModule'
+import { Socket } from 'vue-socket.io-extended'
 import Vue from 'vue'
 import { Component, Prop } from 'vue-property-decorator'
 import { getModule } from 'vuex-module-decorators'
@@ -25,6 +27,7 @@ export default class ServiceList extends Vue {
     }
 
     @Prop({ default: null }) services: IHapService[] | null = null
+
     get serviceList(): IHapService[] {
         if (this.services === null) {
             return this.instance ? this.instance.services : []
@@ -35,7 +38,7 @@ export default class ServiceList extends Vue {
 
     mounted() {}
     created() {
-        this.instance = getModule(InstanceModule)
+        this.instance = getModule(InstanceModule, store)
     }
 }
 </script>

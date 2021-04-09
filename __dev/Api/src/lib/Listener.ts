@@ -1,7 +1,7 @@
 import { Characteristics } from '@oznu/hap-client/dist/hap-types.js'
 Characteristics['7195CE6D-8EE0-402E-BFCE-CB57C6A4AF2A'] = 'Input Source'
 //console.log(Characteristics['0000005C-0000-1000-8000-0026BB765291'])
-import { HapClient, ServiceType } from '@oznu/hap-client'
+import { CharacteristicType, HapClient, ServiceType } from '@oznu/hap-client'
 import axios from 'axios'
 import { HapMonitor } from '@oznu/hap-client/dist/monitor'
 import { Logger, LoggerConfig } from './Logger'
@@ -31,6 +31,7 @@ export class HapListener extends Logger {
         super(options.logger, 'Listener')
         this.config = options
         this.onServiceListChange = () => {}
+        this.onServiceChange = () => {}
     }
 
     private hapClient: HapClient | undefined
@@ -40,9 +41,11 @@ export class HapListener extends Logger {
     private monitor: HapMonitor | undefined
 
     onServiceListChange: (services: ServiceType[]) => void
+    onServiceChange: (services: ServiceType[]) => void
 
     private async onServiceUpdate(services: ServiceType[]) {
-        this.l('Monitor', `Service Update received for '${services.map((s) => `${s.serviceName} (${JSON.stringify(s.values)})`).join(',')}'`)
+        this.l('Monitor', `Characteristic Update received for '${services.map((s) => `${s.serviceName} (${JSON.stringify(s.values)})`).join(',')}'`)
+        this.onServiceChange(services)
         //console.log(services)
     }
 
@@ -54,6 +57,11 @@ export class HapListener extends Logger {
         this.instance = instance
 
         this.instanceWatchDog = setInterval(this.onInstanceWatchDog.bind(this), INSTANCE_WATCHDOG_INTERVAL)
+
+        this.hapClient?.getAllServices().then((services: ServiceType[]) => {
+            this.dl(`Received initial service list (${services.length})`)
+            this.onServiceListChange(services)
+        })
 
         if (this.monitor === undefined) {
             this.l(`Starting Monitor`)

@@ -8,4 +8,4 @@ const socket = io('http://localhost:8099', {
     }
 })
 
-Vue.use(VueSocketIOExt, socket, store)
+Vue.use(VueSocketIOExt, socket, { store })

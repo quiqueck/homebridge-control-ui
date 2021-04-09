@@ -1,6 +1,7 @@
 import { HapListener } from 'src'
 import { Logger, LoggerConfig } from './Logger'
 import { Server, Socket } from 'socket.io'
+import { ServiceType } from '@oznu/hap-client'
 
 export interface IAPIServerConfig {
     port: number
@@ -13,6 +14,8 @@ export class APIServer extends Logger {
     readonly listener: HapListener
     private io: Server | undefined
 
+    private lastSeenServices: ServiceType[] = []
+
     constructor(listener: HapListener, options: IAPIServerConfig) {
         super(options.logger, 'APIServer')
         this.config = options
@@ -21,6 +24,7 @@ export class APIServer extends Logger {
 
     start(): void {
         if (this.io === undefined) {
+            const self = this
             this.l(`Starting Socket.IO on port ${this.config.port}`)
             this.io = new Server(this.config.port, {
                 cors: {
@@ -29,6 +33,10 @@ export class APIServer extends Logger {
                     allowedHeaders: ['my-custom-header'],
                     credentials: true,
                 },
+            })
+            this.io.on('connection', (socket: Socket) => {
+                this.l(`Connected to ${socket.handshake.headers.referer}`)
+                self._emitServices(socket)
             })
 
             this.io.use((socket: Socket, next) => {
@@ -40,9 +48,46 @@ export class APIServer extends Logger {
                     next()
                 }
             })
-            this.io.emit('tweet', {})
+            this.listener.onServiceListChange = this.onServiceListChange.bind(this)
+            this.listener.onServiceChange = this.onServiceChange.bind(this)
 
             this.listener.start()
         }
+    }
+
+    private _emitServices(socket?: Socket) {
+        if (socket) {
+            this.dl(`Sending all Services to ${socket.handshake.headers.referer}`)
+            socket.emit('update_services', this.lastSeenServices)
+        } else {
+            this.dl(`Broadcasting all Services`)
+            this.io?.emit('update_services', this.lastSeenServices)
+        }
+    }
+
+    private _emitChangedServices(services: ServiceType[], socket?: Socket) {
+        if (socket) {
+            this.dl(`Sending changed Services (${services.length}) to ${socket.handshake.headers.referer}`)
+            socket.emit('changed_services', services)
+        } else {
+            this.dl(`Broadcasting changed Services (${services.length})`)
+            this.io?.emit('changed_services', services)
+        }
+    }
+
+    onServiceListChange(services: ServiceType[]): void {
+        this.l(`New Service list available (count: ${services.length})`)
+        this.lastSeenServices = services
+        this._emitServices()
+    }
+
+    onServiceChange(services: ServiceType[]): void {
+        this.l(`Services changed (count: ${services.length})`)
+        this.lastSeenServices = this.lastSeenServices.map((s) => {
+            const ns = services.find((ss) => ss.uniqueId === s.uniqueId)
+            return ns ? ns : s
+        })
+        //console.log(services.map((s) => this.lastSeenServices.find((ss) => ss.uniqueId === s.uniqueId)).filter((s) => s !== undefined))
+        this._emitChangedServices(services)
     }
 }

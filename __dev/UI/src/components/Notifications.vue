@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts">
+import store from '@/store'
 import StateModule from '@/store/StateModule'
 import { Component, Vue } from 'vue-property-decorator'
 import { getModule } from 'vuex-module-decorators'
@@ -34,7 +35,7 @@ export default class Notifications extends Vue {
     state: StateModule | null = null
 
     created() {
-        this.state = getModule(StateModule)
+        this.state = getModule(StateModule, store)
     }
 }
 </script>

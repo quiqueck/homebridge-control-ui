@@ -20,6 +20,7 @@
 
 <script lang="ts">
 import { IHapService } from '@/interfaces/IHapService'
+import { CharacteristicType } from '@oznu/hap-client'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({})
@@ -30,7 +31,15 @@ export default class ServiceWidget extends Vue {
 
     @Prop({ required: true }) readonly service!: IHapService
 
-    mounted() {}
+    mounted() {
+        this.$socket.$subscribe('event_name', (data: CharacteristicType) => {
+            console.log(data)
+        })
+    }
+
+    destroyed() {
+        this.$socket.$unsubscribe('event_name')
+    }
 }
 </script>
 
