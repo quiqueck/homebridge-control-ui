@@ -4,12 +4,13 @@ Characteristics['7195CE6D-8EE0-402E-BFCE-CB57C6A4AF2A'] = 'Input Source'
 import { HapClient, ServiceType } from '@oznu/hap-client'
 import axios from 'axios'
 import { HapMonitor } from '@oznu/hap-client/dist/monitor'
+import { Logger, LoggerConfig } from './Logger'
 
 const INSTANCE_WATCHDOG_INTERVAL = 30 * 1000
 const CLIENT_WATCHDOG_INTERVAL = 90 * 1000
 export interface IHapListenerConfig {
     pin: string
-    logger: any
+    logger: LoggerConfig
     config: {
         debug: boolean
     }
@@ -24,10 +25,12 @@ export interface IHapInstance {
     connectionFailedCount: number
 }
 
-export class HapListener {
+export class HapListener extends Logger {
     readonly config: IHapListenerConfig
     constructor(options: IHapListenerConfig) {
+        super(options.logger, 'Listener')
         this.config = options
+        this.onServiceListChange = () => {}
     }
 
     private hapClient: HapClient | undefined
@@ -36,15 +39,7 @@ export class HapListener {
     private clientWatchDog: NodeJS.Timeout | undefined
     private monitor: HapMonitor | undefined
 
-    private l(who: String, text: String) {
-        this.config.logger.log(`[${who}] ${text}`)
-    }
-
-    private dl(who: String, text: String) {
-        if (this.config.config.debug) {
-            this.config.logger.log(`[DEBUG ${who}] ${text}`)
-        }
-    }
+    onServiceListChange: (services: ServiceType[]) => void
 
     private async onServiceUpdate(services: ServiceType[]) {
         this.l('Monitor', `Service Update received for '${services.map((s) => `${s.serviceName} (${JSON.stringify(s.values)})`).join(',')}'`)
@@ -55,13 +50,13 @@ export class HapListener {
         this.stopClientWatchDog()
         this.stopInstanceWatchDog()
 
-        this.l('Listener', `Bound to Instance ${instance.ipAddress}:${instance.port}`)
+        this.l(`Bound to Instance ${instance.ipAddress}:${instance.port}`)
         this.instance = instance
 
         this.instanceWatchDog = setInterval(this.onInstanceWatchDog.bind(this), INSTANCE_WATCHDOG_INTERVAL)
 
         if (this.monitor === undefined) {
-            this.l('Listener', `Starting Monitor`)
+            this.l(`Starting Monitor`)
             this.monitor = await this.hapClient?.monitorCharacteristics()
             this.monitor?.on('service-update', this.onServiceUpdate.bind(this))
             this.monitor?.start()
@@ -83,7 +78,7 @@ export class HapListener {
             )
             return true
         } catch (e) {
-            this.dl('Listener', `[${instance.ipAddress}:${instance.port} (${instance.username})] returned an error while attempting connection: ${e.message}`)
+            this.dl(`[${instance.ipAddress}:${instance.port} (${instance.username})] returned an error while attempting connection: ${e.message}`)
             return false
         }
     }

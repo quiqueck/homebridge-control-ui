@@ -1,4 +1,4 @@
 import { HapListener, IHapListenerConfig } from './lib/Listener.js'
-import { Server } from './lib/Server.js'
+import { APIServer } from './lib/APIServer.js'
 
-export { HapListener, IHapListenerConfig, Server }
+export { HapListener, IHapListenerConfig, APIServer }
