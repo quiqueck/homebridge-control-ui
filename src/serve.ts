@@ -16,6 +16,7 @@ const listener = new HapListener({
         warn: function (a: any) {
             console.log('w', a)
         },
+        debug: false,
     },
     config: { debug: true },
 })

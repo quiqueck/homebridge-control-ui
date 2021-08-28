@@ -1,6 +1,17 @@
+import { Storage } from './lib/Storage'
 import { HapListener } from './lib/Listener'
 import { LoggerConfig } from './lib/Logger'
 import { APIServer } from './lib/APIServer'
+import axios from 'axios'
+
+const store = new Storage(process.cwd())
+store.addUser({
+    uname: 'sifrbaue',
+    displayname: 'Frank Bauer',
+    isAdmin: true,
+    salt: 'lkjsadahfue',
+    hash: '####',
+})
 
 const logger: LoggerConfig = {
     debug: true,
@@ -27,3 +38,11 @@ const server = new APIServer(listener, {
 })
 
 server.start()
+// axios
+//     .get('http://192.168.55.21:58251/accessories')
+//     .then((response) => {
+//         console.log(response)
+//     })
+//     .catch((e) => {
+//         console.log('Error: ', e.message)
+//     })

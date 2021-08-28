@@ -42,7 +42,7 @@ export class HapDiscovery {
 
     static install: PluginFunction<UserHapDiscoveryPreset> = (Vue: typeof _Vue, options?: UserHapDiscoveryPreset) => {
         if (options === undefined) {
-            console.error('Pleas configure the HapClient!')
+            console.error('Please configure the HapClient!')
             return
         }
 
@@ -52,7 +52,7 @@ export class HapDiscovery {
             client
                 ?.loadServices()
                 .then((services: IHapService[]) => {
-                    instanceModule.updateServices(services.sort((a, b) => a.serviceName.localeCompare(b.serviceName)))
+                    instanceModule.SOCKET_UPDATE_SERVICES(services.sort((a, b) => a.serviceName.localeCompare(b.serviceName)))
                 })
                 .catch((err: ErrorMessage) => {
                     stateModule.addError(err)
@@ -68,13 +68,13 @@ export class HapDiscovery {
                 .post(this.u('/api/auth/login'), {
                     username: this.config.username,
                     password: this.config.password,
-                    otp: ''
+                    otp: '',
                 })
                 .then((response: AxiosResponse<any>) => {
                     self._handleAuth(response)
                     resolve(undefined)
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.error(err)
                     stateModule.setConnected(false)
                     reject(err)
@@ -88,8 +88,8 @@ export class HapDiscovery {
             //this._token = response.data.access_token
             this._reqCfg = {
                 headers: {
-                    Authorization: `Bearer ${response.data.access_token}`
-                }
+                    Authorization: `Bearer ${response.data.access_token}`,
+                },
             }
             stateModule.setConnected(true)
         } else {
@@ -122,7 +122,7 @@ export class HapDiscovery {
         return new Promise<void>((resolve, reject) => {
             let count = this.config.maxRetries
             const self = this
-            const attempt = function() {
+            const attempt = function () {
                 if (count <= 0) {
                     stateModule.setConnected(false)
                     reject()
@@ -133,10 +133,8 @@ export class HapDiscovery {
                     } else {
                         console.error('[AuthFail] Retry in ', self.config.retryTimer / 1000, 's')
                         count--
-                        setTimeout(function() {
-                            self.authenticate()
-                                .then(attempt)
-                                .catch(attempt)
+                        setTimeout(function () {
+                            self.authenticate().then(attempt).catch(attempt)
                         }, self.config.retryTimer)
                     }
                 }
@@ -158,7 +156,7 @@ export class HapDiscovery {
                     details: `${r.status} ${r.statusText}`,
                     sender: 'hapDiscovery.loadServices',
                     data: [r.status, r.statusText, r.data],
-                    rethrow: true
+                    rethrow: true,
                 } as ErrorMessage
             }
         } catch (err) {
@@ -173,7 +171,7 @@ export class HapDiscovery {
                     message: i18n.tc('Errors.hapDiscovery.loadService.failed'),
                     details: `${err.response.data.statusCode} ${err.response.data.message}`,
                     sender: 'hapDiscovery.loadServices',
-                    data: err.response.data
+                    data: err.response.data,
                 } as ErrorMessage
             }
         }
@@ -187,7 +185,7 @@ const inConfig = {
     password: 'chieph9fohdejuch1Wu1lee3equ7weeh',
     refreshTimer: 1000 * 60 * 5,
     retryTimer: 1000 * 2,
-    maxRetries: 10
+    maxRetries: 10,
 }
 
 _Vue.use(HapDiscovery, inConfig)

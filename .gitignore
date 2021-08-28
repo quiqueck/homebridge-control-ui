@@ -25,3 +25,5 @@ api/API.js
 api/API.js.map
 api/serve.js
 api/serve.js.map
+__dev/Api/data/
+__dev/Api/njodb.properties

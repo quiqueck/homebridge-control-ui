@@ -57,7 +57,7 @@ export class APIServer extends Logger {
 
     private _emitServices(socket?: Socket) {
         if (socket) {
-            this.dl(`Sending all Services to ${socket.handshake.headers.referer}`)
+            this.dl(`Sending all ${this.lastSeenServices.length} Services to ${socket.handshake.headers.referer}`)
             socket.emit('update_services', this.lastSeenServices)
         } else {
             this.dl(`Broadcasting all Services`)

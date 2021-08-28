@@ -3,12 +3,20 @@ import { ServiceType } from '@oznu/hap-client'
 export enum HapServiceType {
     Lightbulb = 'Lightbulb',
     LightSensor = 'LightSensor',
+    HumiditySensor = 'HumiditySensor',
     Switch = 'Switch',
     ProtocolInformation = 'ProtocolInformation',
     StatelessProgrammableSwitch = 'StatelessProgrammableSwitch',
     Outlet = 'Outlet',
     ServiceLabel = 'ServiceLabel',
-    Unknown = '?'
+    TemperatureSensor = 'TemperatureSensor',
+    AirQualitySensor = 'AirQualitySensor',
+    Unknown = '?',
+
+    //virtual Services for Displa
+    vPM2_5Density = '___PM2_5Density',
+    vPM10Density = '___PM10Density',
+    vOn = '___On'
 }
 
 export interface HapSwitchServiceValues {

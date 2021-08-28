@@ -11,7 +11,7 @@ export default class InstanceModule extends VuexModule {
     }
 
     get characteristics(): CharacteristicType[] {
-        return this.services.map(s => s.serviceCharacteristics).flat(1)
+        return this.services.map((s) => s.serviceCharacteristics).flat(1)
     }
 
     @Mutation
@@ -23,8 +23,8 @@ export default class InstanceModule extends VuexModule {
     @Mutation
     SOCKET_CHANGED_SERVICES(chgServices: IHapService[]) {
         console.log('SOCKET_UPDATE_SERVICES')
-        this.services = this.services.map(s => {
-            const ns = chgServices.find(ss => ss.uniqueId === s.uniqueId)
+        this.services = this.services.map((s) => {
+            const ns = chgServices.find((ss) => ss.uniqueId === s.uniqueId)
             return ns ? ns : s
         })
     }
@@ -36,13 +36,14 @@ export default class InstanceModule extends VuexModule {
 
     // @Action({ commit: 'updateServices' })
     // async fetchServices() {
-    //     const attempt = function() {
-    //         if (client === undefined) {
+    //     const self = this;
+    //     const attempt = function () {
+    //         if (self.client === undefined) {
     //             setTimeout(attempt, 1000)
     //         } else {
-    //             client
+    //             self.client
     //                 .loadServices()
-    //                 .then(services => {
+    //                 .then((services) => {
     //                     return services
     //                 })
     //                 .catch(() => {})

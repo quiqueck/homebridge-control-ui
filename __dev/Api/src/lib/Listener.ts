@@ -46,10 +46,11 @@ export class HapListener extends Logger {
     private async onServiceUpdate(services: ServiceType[]) {
         this.l('Monitor', `Characteristic Update received for '${services.map((s) => `${s.serviceName} (${JSON.stringify(s.values)})`).join(',')}'`)
         this.onServiceChange(services)
-        //console.log(services)
+        console.log(services)
     }
 
-    private async didDiscoverInstance(instance: IHapInstance) {
+    public async didDiscoverInstance(instance: IHapInstance) {
+        this.l(`Discovered Instance ${instance.ipAddress}:${instance.port}`)
         this.stopClientWatchDog()
         this.stopInstanceWatchDog()
 
@@ -86,7 +87,7 @@ export class HapListener extends Logger {
             )
             return true
         } catch (e) {
-            this.dl(`[${instance.ipAddress}:${instance.port} (${instance.username})] returned an error while attempting connection: ${e.message}`)
+            this.dl(`[${instance.ipAddress}:${instance.port} (${instance.username})] returned an error while attempting connection: ${e}`)
             return false
         }
     }
